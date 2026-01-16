@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tweet',
+    'django_tailwind_cli',
 ]
 
 MIDDLEWARE = [
