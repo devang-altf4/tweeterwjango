@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-2f1k#jldkynq8!n4=-v$#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com', '.vercel.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com', 'tweeterwjango-1.onrender.com']
 
 
 # Application definition
