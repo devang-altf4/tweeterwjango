@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load tweet_extras %}
 
 {% block title %}
 Tweet by @{{ tweet.user.username }}
@@ -44,7 +45,7 @@ Tweet by @{{ tweet.user.username }}
             </div>
 
             <!-- Tweet Content -->
-            <p class="text-xl text-gray-900 leading-relaxed mb-4 whitespace-pre-wrap">{{ tweet.text }}</p>
+            <p class="text-xl text-gray-900 leading-relaxed mb-4 whitespace-pre-wrap">{{ tweet.text|linkify_tweet }}</p>
 
             {% if tweet.image %}
             <div class="rounded-xl overflow-hidden border border-gray-100 mb-6">
@@ -55,12 +56,12 @@ Tweet by @{{ tweet.user.username }}
             <!-- Stats & Actions -->
             <div class="border-t border-gray-100 pt-4 flex items-center justify-between">
                 <div class="flex items-center space-x-6">
-                    <a href="{% url 'tweet_like' tweet.pk %}" class="flex items-center space-x-2 group transition-colors {% if user in tweet.likes.all %}text-red-500{% else %}text-gray-500 hover:text-red-500{% endif %}">
+                    <button data-tweet-id="{{ tweet.pk }}" class="like-btn flex items-center space-x-2 group transition-colors {% if user in tweet.likes.all %}text-red-500{% else %}text-gray-500 hover:text-red-500{% endif %}">
                         <div class="p-2 rounded-full group-hover:bg-red-50 transition-colors">
                             <svg class="h-6 w-6 {% if user in tweet.likes.all %}fill-current{% else %}fill-none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                         </div>
-                        <span class="text-sm font-medium">{{ tweet.total_likes }}</span>
-                    </a>
+                        <span class="text-sm font-medium like-count">{{ tweet.total_likes }}</span>
+                    </button>
                     
                     <button class="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors group">
                         <div class="p-2 rounded-full group-hover:bg-blue-50 transition-colors">
@@ -107,9 +108,13 @@ Tweet by @{{ tweet.user.username }}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
             <div class="flex items-start">
                 <div class="flex-shrink-0 mr-3">
-                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm">
-                        {{ comment.user.username|slice:":1"|upper }}
-                    </div>
+                    {% if comment.user.profile.profile_picture %}
+                        <img src="{{ comment.user.profile.profile_picture.url }}" alt="{{ comment.user.username }}" class="h-10 w-10 rounded-full object-cover">
+                    {% else %}
+                        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm">
+                            {{ comment.user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
