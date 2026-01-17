@@ -46,3 +46,25 @@ class TweetTests(TestCase):
         response = self.client.post(reverse('tweet_delete', args=[tweet.pk]))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Tweet.objects.count(), 0)
+
+    def test_my_tweets_view(self):
+        # Create a tweet for the logged-in user
+        Tweet.objects.create(user=self.user, text='My Tweet')
+        
+        # Create a tweet for another user
+        other_user = User.objects.create_user(username='other', password='password')
+        Tweet.objects.create(user=other_user, text='Other Tweet')
+
+        response = self.client.get(reverse('my_tweets'))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that only the user's tweet is in the context
+        self.assertContains(response, 'My Tweet')
+        self.assertNotContains(response, 'Other Tweet')
+
+    def test_tweet_detail_view(self):
+        tweet = Tweet.objects.create(user=self.user, text='Detail Tweet')
+        response = self.client.get(reverse('tweet_detail', args=[tweet.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tweet_detail.html')
+        self.assertContains(response, 'Detail Tweet')

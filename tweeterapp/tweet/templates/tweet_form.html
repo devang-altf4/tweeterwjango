@@ -1,76 +1,89 @@
 {% extends "layout.html" %}
 
 {% block title %}
-{% if form.instance.pk %}Edit Tweet{% else %}Create Tweet{% endif %}
+{% if form.instance.pk %}Edit Tweet{% else %}New Tweet{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto mt-8">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h2 class="text-xl font-bold text-gray-800">
-                {% if form.instance.pk %}Edit Tweet{% else %}Create New Tweet{% endif %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-gray-900">
+                {% if form.instance.pk %}Edit Tweet{% else %}Compose new Tweet{% endif %}
             </h2>
+            <a href="{% url 'tweet_list' %}" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </a>
         </div>
         
         <form method="post" enctype="multipart/form-data" class="p-6">
             {% csrf_token %}
             
             {% if form.errors %}
-            <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                <p class="font-bold">Please correct the errors below:</p>
-                <ul class="list-disc list-inside">
+            <div class="mb-6 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <div class="flex items-center mb-1">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-semibold">Please fix the following errors:</span>
+                </div>
+                <ul class="list-disc list-inside ml-5">
                     {% for field in form %}
                         {% for error in field.errors %}
-                            <li>{{ field.label }}: {{ error }}</li>
+                            <li>{{ error }}</li>
                         {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
             </div>
             {% endif %}
 
             <div class="mb-6">
-                <label for="{{ form.text.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                    Tweet Text
-                </label>
-                <textarea 
-                    name="{{ form.text.name }}" 
-                    id="{{ form.text.id_for_label }}" 
-                    rows="4" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="What's happening?"
-                    maxlength="280"
-                    required>{{ form.text.value|default_if_none:'' }}</textarea>
-                <p class="mt-1 text-sm text-gray-500 text-right">Max 280 characters</p>
-            </div>
-
-            <div class="mb-6">
-                <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                    Image (Optional)
-                </label>
-                {% if form.instance.image %}
-                    <div class="mb-2">
-                        <p class="text-sm text-gray-500 mb-1">Current image:</p>
-                        <img src="{{ form.instance.image.url }}" alt="Current Image" class="h-32 w-auto object-cover rounded border">
+                <label for="{{ form.text.id_for_label }}" class="sr-only">Tweet Text</label>
+                <div class="relative">
+                    <textarea 
+                        name="{{ form.text.name }}" 
+                        id="{{ form.text.id_for_label }}" 
+                        rows="5" 
+                        class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg resize-none p-4 placeholder-gray-400"
+                        placeholder="What's happening?"
+                        maxlength="280"
+                        required>{{ form.text.value|default_if_none:'' }}</textarea>
+                    <div class="absolute bottom-3 right-3 text-xs text-gray-400 font-medium bg-white px-1">
+                        Max 280
                     </div>
-                {% endif %}
-                <input 
-                    type="file" 
-                    name="{{ form.image.name }}" 
-                    id="{{ form.image.id_for_label }}" 
-                    accept="image/*"
-                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors">
+                </div>
             </div>
 
-            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-100">
-                <a href="{% url 'tweet_list' %}" class="text-gray-600 hover:text-gray-800 font-medium transition-colors">
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Media
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100 group relative">
+                    <div class="space-y-1 text-center">
+                        {% if form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" alt="Current" class="mx-auto h-32 object-cover rounded mb-2">
+                            <p class="text-xs text-gray-500">Click to change image</p>
+                        {% else %}
+                            <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-blue-500 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600 justify-center">
+                                <span class="relative cursor-pointer bg-transparent rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <span>Upload a file</span>
+                                </span>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        {% endif %}
+                        <input type="file" name="{{ form.image.name }}" id="{{ form.image.id_for_label }}" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-4">
+                <a href="{% url 'tweet_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     Cancel
                 </a>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow transition-colors duration-200">
-                    {% if form.instance.pk %}Save Changes{% else %}Tweet{% endif %}
+                <button type="submit" class="px-6 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
+                    {% if form.instance.pk %}Update Tweet{% else %}Post Tweet{% endif %}
                 </button>
             </div>
         </form>

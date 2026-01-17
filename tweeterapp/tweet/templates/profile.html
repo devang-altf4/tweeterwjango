@@ -1,43 +1,58 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Feed
+@{{ profile_user.username }}
 {% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
-    <!-- Header Section -->
-    <div class="flex justify-between items-end mb-8 pb-4 border-b border-gray-200">
-        <div>
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Latest Tweets</h1>
-            <p class="text-gray-500 mt-1 text-sm">See what's happening around the world right now.</p>
+    <!-- Profile Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-32"></div>
+        <div class="px-6 pb-6 relative">
+            <div class="-mt-12 mb-4 flex items-end">
+                <div class="h-24 w-24 rounded-full border-4 border-white bg-white shadow-sm overflow-hidden">
+                    <div class="h-full w-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-3xl font-bold text-gray-500">
+                        {{ profile_user.username|slice:":1"|upper }}
+                    </div>
+                </div>
+                <div class="ml-4 mb-1">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ profile_user.username }}</h1>
+                    <p class="text-gray-500 text-sm">Joined {{ profile_user.date_joined|date:"F Y" }}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-8 border-t border-gray-50 pt-4">
+                <div class="text-center">
+                    <span class="block text-xl font-bold text-gray-900">{{ tweets.count }}</span>
+                    <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Tweets</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-xl font-bold text-gray-900">{{ profile_user.liked_tweets.count }}</span>
+                    <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Likes</span>
+                </div>
+            </div>
         </div>
-        <a href="{% url 'tweet_create' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Tweet
-        </a>
     </div>
 
     <!-- Feed -->
+    <h2 class="text-xl font-bold text-gray-900 mb-4 px-2">Tweets</h2>
     <div class="space-y-6">
         {% for tweet in tweets %}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 overflow-hidden">
             <div class="p-5">
                 <div class="flex items-start space-x-3">
-                    <!-- Avatar Placeholder -->
-                    <a href="{% url 'profile' tweet.user.username %}" class="flex-shrink-0 group">
-                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:shadow-md transition-shadow">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
                             {{ tweet.user.username|slice:":1"|upper }}
                         </div>
-                    </a>
+                    </div>
                     
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center justify-between">
-                            <a href="{% url 'profile' tweet.user.username %}" class="text-sm font-semibold text-gray-900 hover:underline">
+                            <p class="text-sm font-semibold text-gray-900">
                                 @{{ tweet.user.username }}
-                            </a>
+                            </p>
                             <p class="text-xs text-gray-500">
                                 {{ tweet.created_at|date:"M d" }}
                             </p>
@@ -51,7 +66,6 @@ Feed
                         </div>
                         {% endif %}
 
-                        <!-- Action Bar -->
                         <div class="mt-4 flex items-center justify-between border-t border-gray-50 pt-3">
                             <div class="flex space-x-4 text-gray-400">
                                 <a href="{% url 'tweet_detail' tweet.pk %}" class="flex items-center space-x-1 hover:text-blue-500 transition-colors group">
@@ -62,10 +76,6 @@ Feed
                                     <svg class="h-5 w-5 group-hover:bg-red-50 rounded-full p-0.5 {% if user in tweet.likes.all %}fill-current{% else %}fill-none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                                     <span class="text-xs">{{ tweet.total_likes }}</span>
                                 </a>
-                                <button class="flex items-center space-x-1 hover:text-green-500 transition-colors group">
-                                    <svg class="h-5 w-5 group-hover:bg-green-50 rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                    <span class="text-xs">0</span>
-                                </button>
                             </div>
 
                             {% if tweet.user == user %}
@@ -81,20 +91,8 @@ Feed
             </div>
         </div>
         {% empty %}
-        <div class="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
-            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No tweets yet</h3>
-            <p class="mt-1 text-sm text-gray-500">Get started by creating a new tweet.</p>
-            <div class="mt-6">
-                <a href="{% url 'tweet_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                    </svg>
-                    New Tweet
-                </a>
-            </div>
+        <div class="text-center py-10 text-gray-500">
+            <p>@{{ profile_user.username }} hasn't posted any tweets yet.</p>
         </div>
         {% endfor %}
     </div>
