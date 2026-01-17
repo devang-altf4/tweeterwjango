@@ -1,7 +1,9 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render,get_object_or_404
 from .models import Tweet
-from .forms import TweetForm
-from django.shortcuts import get_object_or_404,redirect
+from .forms import TweetForm 
+from django.contrib.auth.decorators import login_required
+from .forms import UserRegistrationForm
+from django.contrib.auth import login
 
 
 
@@ -12,6 +14,7 @@ def tweet_list(request):
     tweets = Tweet.objects.all().order_by('-created_at')
     return render(request, 'tweet_list.html', {'tweets': tweets})
 
+@login_required
 def tweet_create(request):
     if request.method == 'POST':
         form = TweetForm(request.POST, request.FILES)
@@ -24,6 +27,7 @@ def tweet_create(request):
         form = TweetForm()
     return render(request, 'tweet_form.html', {'form': form})
 
+@login_required
 def tweet_edit(request, pk):
     tweet = get_object_or_404(Tweet, pk=pk)
     if request.method == 'POST':
@@ -35,9 +39,21 @@ def tweet_edit(request, pk):
         form = TweetForm(instance=tweet)
     return render(request, 'tweet_form.html', {'form': form})
 
+@login_required
 def tweet_delete(request, pk):
     tweet = get_object_or_404(Tweet, pk=pk)
     if request.method == 'POST':
         tweet.delete()
         return redirect('tweet_list')
     return render(request, 'tweet_confirm_delete.html', {'tweet': tweet})
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('tweet_list')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'registration/register.html', {'form': form})
